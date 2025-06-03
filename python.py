@@ -87,7 +87,7 @@ def parse_resume_with_genai(resume_text):
 
 # --- Hàm chính ---
 if __name__ == "__main__":
-    pdf_file_path = "example.pdf" # Đặt tên file CV của bạn ở đây
+    pdf_file_path = "example.pdf"
 
     # Bước 1: Trích xuất văn bản từ PDF
     cv_text = extract_text_from_pdf(pdf_file_path)
