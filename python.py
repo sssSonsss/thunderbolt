@@ -1,18 +1,12 @@
 import PyPDF2
-import google.generativeai as genai
+from google import genai
 import json
 import os
 
 # --- Cấu hình GenAI API ---
 # Thay thế "YOUR_GEMINI_API_KEY" bằng API Key thực của bạn
 # Tốt nhất nên lưu API key trong biến môi trường
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-if not GEMINI_API_KEY:
-    raise ValueError("GEMINI_API_KEY environment variable not set.")
-genai.configure(api_key=GEMINI_API_KEY)
 
-# Chọn model phù hợp (ví dụ: gemini-pro cho văn bản)
-model = genai.GenerativeModel('gemini-pro')
 
 def extract_text_from_pdf(pdf_path):
     """
@@ -81,36 +75,19 @@ def parse_resume_with_genai(resume_text):
     {resume_text}
     ---
     """
+    
 
-    try:
-        response = model.generate_content(prompt)
-        # Gemini thường trả về markdown code block, cần trích xuất phần JSON
-        response_text = response.text.strip()
-        
-        # Tìm và trích xuất chuỗi JSON giữa các dấu ```json và ```
-        start_idx = response_text.find("```json")
-        end_idx = response_text.rfind("```")
-        
-        if start_idx != -1 and end_idx != -1 and start_idx < end_idx:
-            json_str = response_text[start_idx + len("```json"):end_idx].strip()
-        else:
-            # Nếu không tìm thấy markdown, thử phân tích trực tiếp
-            json_str = response_text
+    client = genai.Client(api_key="AIzaSyDTzn0avrKlIf8ch3B6ICc83wmaHJ66xu4")
 
-        # Chuyển chuỗi JSON thành dictionary
-        parsed_data = json.loads(json_str)
-        return parsed_data
-    except json.JSONDecodeError as e:
-        print(f"Lỗi khi phân tích JSON từ phản hồi GenAI: {e}")
-        print(f"Phản hồi thô: \n{response.text}")
-        return {"error": "Không thể phân tích phản hồi GenAI thành JSON."}
-    except Exception as e:
-        print(f"Lỗi khi gọi GenAI API: {e}")
-        return {"error": f"Lỗi GenAI API: {e}"}
+    response = client.models.generate_content(
+        model="gemini-2.0-flash", contents=prompt
+    )
+    print(response.text)
+
 
 # --- Hàm chính ---
 if __name__ == "__main__":
-    pdf_file_path = "example_cv.pdf" # Đặt tên file CV của bạn ở đây
+    pdf_file_path = "example.pdf" # Đặt tên file CV của bạn ở đây
 
     # Bước 1: Trích xuất văn bản từ PDF
     cv_text = extract_text_from_pdf(pdf_file_path)
